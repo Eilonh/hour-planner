@@ -1,0 +1,96 @@
+import datetime
+import csv
+import calendar
+
+def generate_hours():
+    global total_hours_list
+    global start_hour_list
+    global end_hour_list
+    total_hours_list = []
+    start_hour_list = []
+    end_hour_list = []
+    start_hour = float(input('Enter starting time (including minutes) ==> '))
+    end_hour = float(input('Enter ending time(including minutes) ==> '))
+    print('______________________________')
+    print ('Starting time: ', start_hour)
+    print('Ending time: ', end_hour)
+    print('Total: ', end_hour-start_hour)
+    print('______________________________')
+    add = input('Add to list? (Y/n) ==> ')
+    if add.upper() == 'Y':
+        start_hour_list.append(start_hour)
+        end_hour_list.append(end_hour)
+        total_hours_list.append(end_hour-start_hour)
+        return (start_hour_list)
+        return (end_hour_list)
+        return (total_hours_list)
+
+    else:
+        print ('OK')
+
+
+def generate_date():
+    global date_list
+    global week_day_list
+    date_list = []
+    week_day_list = []
+    date = datetime.datetime.today()
+    week_day = date.today()
+    print('Today is',calendar.day_name[week_day.weekday()])
+    print (date.strftime('The current date is %d %b %Y'))
+    date_list.append(date.strftime('%d %b'))
+    week_day_list.append(calendar.day_name[week_day.weekday()])
+    return (date_list)
+    return (week_day_list)
+
+def read_csv():
+    with open('example.csv', 'r')as csv_file:
+        read_csv = csv_file.read()
+        print(read_csv)
+        close_csv = csv_file.close()
+
+def write_csv():
+    with open('example.csv', 'w') as csv_file:
+        write_csv = csv.writer(csv_file, delimiter = ',')
+        write_csv.writerow(['','','Start  ', 'End', 'Hours', '100%-Hours', '125%-Hours', '150%-Hours', '200%-Hours'])
+        write_csv.writerow ([date_list,week_day_list,start_hour_list,end_hour_list,total_hours_list])
+        close_csv = csv_file.close()
+
+def append_csv():
+    with open('example.csv', 'a', newline="") as csv_file:
+        write_csv = csv.writer(csv_file, delimiter = ',')
+        write_csv.writerow ([date_list,week_day_list,start_hour_list,end_hour_list,total_hours_list])
+        close_csv = csv_file.close()
+
+print ('--- Hours sheet planner ---')
+
+
+# Main manu
+
+date = datetime.datetime.today()
+week_day = date.today()
+print('Today is',calendar.day_name[week_day.weekday()])
+print (date.strftime('The current date is %d %b %Y'))
+print ('''
+[1] Read hour sheet
+[2] update hour sheet
+''')
+Main = input('Enter a choise ==> ')
+
+if Main == '1':
+    read_csv()
+
+if Main == '2':
+    with open('example.csv', 'r', newline="")as csv_file:
+        read_csv = csv_file.read()
+    if "Hours" not in read_csv:
+        generate_date()
+        generate_hours()
+        append_csv()
+        write_csv()
+        close_csv = csv_file.close()
+
+    else:
+        generate_date()
+        generate_hours()
+        append_csv()
