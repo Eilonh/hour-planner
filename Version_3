@@ -1,0 +1,389 @@
+import datetime
+import csv
+import calendar
+import pandas
+import os
+
+def generate_hours():
+    global total_hours_list
+    global start_hour_list
+    global end_hour_list
+    total_hours_list = []
+    start_hour_list = []
+    end_hour_list = []
+    start_hour = float(input('Enter starting time (including minutes) ==> '))
+    end_hour = float(input('Enter ending time(including minutes) ==> '))
+    print('______________________________')
+    print ('Starting time: ', start_hour)
+    print('Ending time: ', end_hour)
+    print('Total: ', end_hour-start_hour)
+    print('______________________________')
+    add = input('Add to list? (Y/n) ==> ')
+    if add.upper() == 'Y':
+        start_hour_list.append(start_hour)
+        end_hour_list.append(end_hour)
+        total_hours_list.append(end_hour-start_hour)
+        return (start_hour_list, end_hour_list, total_hours_list)
+
+    else:
+        print ('No records saved')
+
+
+def generate_date():
+    global date_list
+    global week_day_list
+    date_list = []
+    week_day_list = []
+    date = datetime.datetime.today()
+    week_day = date.today()
+    print('Today is',calendar.day_name[week_day.weekday()]+',')
+    print (date.strftime('The current date is %d %b %Y'))
+    date_list.append(date.strftime('%d %b'))
+    week_day_list.append(calendar.day_name[week_day.weekday()])
+    return (date_list, week_day_list)
+
+
+def read_csv():
+    read_csv = pandas.read_csv('hour_sheet.csv')
+    print(read_csv)
+
+
+def write_csv():
+    with open('hour_sheet.csv', 'w') as csv_file:
+        write_csv = csv.writer(csv_file, delimiter = ',')
+        write_csv.writerow(['date','day','Start', 'End', 'Hours', '100%-Hours', '125%-Hours', '150%-Hours', '200%-Hours'])
+        write_csv.writerow ([date_list,week_day_list,start_hour_list,end_hour_list,total_hours_list])
+        close_csv = csv_file.close()
+
+
+
+def append_csv():
+    with open('hour_sheet.csv', 'a', newline="") as csv_file:
+        write_csv = csv.writer(csv_file, delimiter = ',')
+        write_csv.writerow ([str(date_list).strip('['']'),str(week_day_list).strip('['']'),str(start_hour_list).strip('['']'),str(end_hour_list).strip('['']'),str(total_hours_list).strip('['']')])
+        close_csv = csv_file.close()
+
+
+def payment():
+        read_csv = pandas.read_csv('hour_sheet.csv', sep=',', usecols=(4,5,6,7,8))
+        oneHundred = read_csv['100%-Hours'].sum() * 60
+        oneTwentyFive = read_csv['125%-Hours'].sum() * 75
+        oneFifty = read_csv['150%-Hours'].sum() * 90
+        twoHundred = read_csv['200%-Hours'].sum() * 120
+        print('Summery of total hours:')
+        print('Total Hours |',read_csv['Hours'].sum())
+        print('100%-Hours  |',read_csv['100%-Hours'].sum())
+        print('125%-Hours  |',read_csv['125%-Hours'].sum())
+        print('150%-Hours  |',read_csv['150%-Hours'].sum())
+        print('200%-Hours  |',read_csv['200%-Hours'].sum())
+        print('Paycheck    |',oneHundred+oneFifty+oneTwentyFive+twoHundred)
+
+
+
+print ('''
+ _   _                        _               _   
+| | | |                      | |             | |  
+| |_| | ___  _   _ _ __   ___| |__   ___  ___| |_ 
+|  _  |/ _ \| | | | '__| / __| '_ \ / _ \/ _ \ __|
+| | | | (_) | |_| | |    \__ \ | | |  __/  __/ |_ 
+\_| |_/\___/ \__,_|_|    |___/_| |_|\___|\___|\__|
+                                                  
+                                                  ''')
+
+while True:
+    # try:
+
+    # Main manu
+    date = datetime.datetime.today()
+    week_day = date.today()
+    print('Today is',calendar.day_name[week_day.weekday()]+',')
+    print (date.strftime('The current date is %d %b %Y'))
+    print ('''
+    [1] Read hour sheet
+    [2] Update hour sheet (Manual)
+    [3] Update hour sheet (Authomatic)
+    [4] Create new file
+    [5] Review summery information
+    ''')
+
+    # Read hour sheet
+    Main = input('Enter a choise ==> ')
+
+    if Main == '1':
+        read_csv()
+
+        # Return to Main manu
+        mainManu = input('Retuen to main manu? (Y/n) ==>').lower()
+        if mainManu == 'y':
+            pass
+        else:
+            break
+
+    # Update hour sheet (Manual)
+    if Main == '2':
+        with open('hour_sheet.csv', 'r', newline="")as csv_file:
+            read_csv = csv_file.read()
+        if "Hours" not in read_csv:
+            generate_date()
+            generate_hours()
+            append_csv()
+            write_csv()
+            close_csv = csv_file.close()
+
+            # Return to Main manu
+            mainManu = input('Retuen to main manu? (Y/n) ==>').lower()
+            if mainManu == 'y':
+                print ('______________________________')
+                pass
+            else:
+                break
+
+        else:
+            generate_date()
+            generate_hours()
+            append_csv()
+
+            # Return to Main manu
+            mainManu = input('Retuen to main manu? (Y/n) ==>').lower()
+            if mainManu == 'y':
+                pass
+            else:
+                break
+
+    # Update hour sheet (Authomatic)
+    if Main == '3':
+        week_day_list = []
+        date = datetime.datetime.today()
+        week_day = date.today()
+        day = calendar.day_name[week_day.weekday()]
+
+        if day != 'Friday' or 'Saturday':
+            print ('[1] - Morning')
+            print ('[2] - Evening')
+            print ('[3] - Night')
+
+            shift = input('Select shift ==> ')
+
+            if shift == '1':
+                date_list = []
+                week_day_list = []
+                date = datetime.datetime.today()
+                week_day = date.today()
+                date_list.append(date.strftime('%d %b'))
+                week_day_list.append(calendar.day_name[week_day.weekday()])
+                with open('hour_sheet.csv', 'a', newline="") as csv_file:
+                    write_csv = csv.writer(csv_file, delimiter = ',')
+                    write_csv.writerow ([str(date_list).strip('[]'),str(week_day_list).strip('[]'),float('08.00'),float('16.00'),float('08.00'),float('08.00'),float('0.00'),float('0.00'),float('0.00')])
+                    close_csv = csv_file.close()
+                    print ('[+]', week_day_list,'was added seccessfully')
+
+                    # Return to Main manu
+                    mainManu = input('Retuen to main manu? (Y/n) ==>').lower()
+                    if mainManu == 'y':
+                        pass
+                    else:
+                        break
+
+            if shift == '2':
+                date_list = []
+                week_day_list = []
+                date = datetime.datetime.today()
+                week_day = date.today()
+                date_list.append(date.strftime('%d %b'))
+                week_day_list.append(calendar.day_name[week_day.weekday()])
+                with open('hour_sheet.csv', 'a', newline="") as csv_file:
+                    write_csv = csv.writer(csv_file, delimiter = ',')
+                    write_csv.writerow ([str(date_list).strip('[]'),str(week_day_list).strip('[]'),float('16.00'),float('24.00'),float('08.00'),float('07.00'),float('01.00'),float('0.00'),float('0.00')])
+                    close_csv = csv_file.close()
+                    print ('[+]', week_day_list,'was added seccessfully')
+
+                    # Return to Main manu
+                    mainManu = input('Retuen to main manu? (Y/n) ==>').lower()
+                    if mainManu == 'y':
+                        pass
+                    else:
+                        break
+
+
+            if shift == '3':
+                date_list = []
+                week_day_list = []
+                date = datetime.datetime.today()
+                week_day = date.today()
+                date_list.append(date.strftime('%d %b'))
+                week_day_list.append(calendar.day_name[week_day.weekday()])
+                with open('hour_sheet.csv', 'a', newline="") as csv_file:
+                    write_csv = csv.writer(csv_file, delimiter = ',')
+                    write_csv.writerow ([str(date_list).strip('[]'),str(week_day_list).strip('[]'),float('0.00'),float('08.00'),float('08.00'),float('0.00'),float('01.00'), float('7.00'),float('0.00')])
+                    close_csv = csv_file.close()
+                    print ('[+]', week_day_list,'was added seccessfully')
+
+                    # Return to Main manu
+                    mainManu = input('Retuen to main manu? (Y/n) ==>')
+                    if mainManu == 'Y'.lower():
+                        pass
+                    else:
+                        break
+
+            if day == 'Friday':
+
+                # Friday morning
+                if shift == '1':
+                    date_list = []
+                    week_day_list = []
+                    date = datetime.datetime.today()
+                    week_day = date.today()
+                    date_list.append(date.strftime('%d %b'))
+                    week_day_list.append(calendar.day_name[week_day.weekday()])
+                    with open('hour_sheet.csv', 'a', newline="") as csv_file:
+                        write_csv = csv.writer(csv_file, delimiter=',')
+                        write_csv.writerow([str(date_list).strip('[]'), str(week_day_list).strip('[]'), float('08.00'), float('16.00'), float('08.00'), float('08.00'), float('0.00'), float('0.00'),float('0.00')])
+                        close_csv = csv_file.close()
+                        print('[+]', week_day_list, 'was added seccessfully')
+
+                        # Return to Main manu
+                        mainManu = input('Retuen to main manu? (Y/n) ==>')
+                        if mainManu == 'Y'.lower():
+                            pass
+                        else:
+                            break
+
+                # Friday evening
+                if shift == '2':
+                    date_list = []
+                    week_day_list = []
+                    date = datetime.datetime.today()
+                    week_day = date.today()
+                    date_list.append(date.strftime('%d %b'))
+                    week_day_list.append(calendar.day_name[week_day.weekday()])
+                    with open('hour_sheet.csv', 'a', newline="") as csv_file:
+                        write_csv = csv.writer(csv_file, delimiter=',')
+                        write_csv.writerow([str(date_list).strip('[]'), str(week_day_list).strip('[]'), float('08.00'), float('16.00'), float('08.00'), float('0.00'), float('06.00'), float('01.00'),float('0.00')])
+                        close_csv = csv_file.close()
+                        print('[+]', week_day_list, 'was added seccessfully')
+
+                        # Return to Main manu
+                        mainManu = input('Retuen to main manu? (Y/n) ==>').lower()
+                        if mainManu == 'y':
+                            pass
+                        else:
+                            break
+
+                # Friday night
+                if shift == '3':
+                    date_list = []
+                    week_day_list = []
+                    date = datetime.datetime.today()
+                    week_day = date.today()
+                    date_list.append(date.strftime('%d %b'))
+                    week_day_list.append(calendar.day_name[week_day.weekday()])
+                    with open('hour_sheet.csv', 'a', newline="") as csv_file:
+                        write_csv = csv.writer(csv_file, delimiter=',')
+                        write_csv.writerow([str(date_list).strip('[]'), str(week_day_list).strip('[]'), float('08.00'), float('16.00'), float('08.00'), float('0.00'), float('0.00'), float('01.00'),float('07.00')])
+                        close_csv = csv_file.close()
+                        print('[+]', week_day_list, 'was added seccessfully')
+
+                        # Return to Main manu
+                        mainManu = input('Retuen to main manu? (Y/n) ==>').lower()
+                        if mainManu == 'y':
+                            pass
+                        else:
+                            break
+
+
+            if day == 'Saturday':
+
+                # Saturday morning
+                if shift == '1':
+                    date_list = []
+                    week_day_list = []
+                    date = datetime.datetime.today()
+                    week_day = date.today()
+                    date_list.append(date.strftime('%d %b'))
+                    week_day_list.append(calendar.day_name[week_day.weekday()])
+                    with open('hour_sheet.csv', 'a', newline="") as csv_file:
+                        write_csv = csv.writer(csv_file, delimiter=',')
+                        write_csv.writerow([str(date_list).strip('[]'), str(week_day_list).strip(), float('08.00'), float('16.00'), float('08.00'), float('0.00'), float('0.00'), float('0.00'),float('08.00')])
+                        close_csv = csv_file.close()
+                        print('[+]', week_day_list, 'was added seccessfully')
+
+                        # Return to Main manu
+                        mainManu = input('Retuen to main manu? (Y/n) ==>').lower()
+                        if mainManu == 'y':
+                            pass
+                        else:
+                            break
+
+                # Saturday Evening
+                if shift == '2':
+                    date_list = []
+                    week_day_list = []
+                    date = datetime.datetime.today()
+                    week_day = date.today()
+                    date_list.append(date.strftime('%d %b'))
+                    week_day_list.append(calendar.day_name[week_day.weekday()])
+                    with open('hour_sheet.csv', 'a', newline="") as csv_file:
+                        write_csv = csv.writer(csv_file, delimiter=',')
+                        write_csv.writerow([str(date_list).strip('[]'), str(week_day_list).strip('[]'), float('08.00'), float('16.00'), float('08.00'), float('0.00'), float('1.00'), float('02.00'),float('05.00')])
+                        close_csv = csv_file.close()
+                        print('[+]', week_day_list, 'was added seccessfully')
+
+                        # Return to Main manu
+                        mainManu = input('Retuen to main manu? (Y/n) ==>').lower()
+                        if mainManu == 'y':
+                            pass
+                        else:
+                            break
+
+                    # Saturday Night
+                    if shift == '3':
+                        date_list = []
+                        week_day_list = []
+                        date = datetime.datetime.today()
+                        week_day = date.today()
+                        date_list.append(date.strftime('%d %b'))
+                        week_day_list.append(calendar.day_name[week_day.weekday()])
+                        with open('hour_sheet.csv', 'a', newline="") as csv_file:
+                            write_csv = csv.writer(csv_file, delimiter=',')
+                            write_csv.writerow([str(date_list).strip('[]'), str(week_day_list).strip('[]'), float('08.00'), float('16.00'), float('08.00'), float('0.00'), float('1.00'),float('07.00'), float('0.00')])
+                            close_csv = csv_file.close()
+                            print('[+]', week_day_list, 'was added seccessfully')
+
+                            # Return to Main manu
+                            mainManu = input('Retuen to main manu? (Y/n) ==>').lower()
+                            if mainManu == 'y':
+                                pass
+                            else:
+                                break
+
+    # create new file
+    if Main == '4':
+        sure = input('Are you sure you want to crete a new file? (old will be eresed) [Y/n] ==> ').lower()
+        if sure == 'y':
+            with open('hour_sheet.csv', 'w') as csv_file:
+                write_csv = csv.writer(csv_file, delimiter = ',')
+                write_csv.writerow(['','','Start', 'End', 'Hours', '100%-Hours', '125%-Hours', '150%-Hours', '200%-Hours'])
+                close_csv = csv_file.close()
+                print ('[+] File created seccesfully')
+                file_path = os.getcwd()
+                print ('File path is',file_path+'\hour_sheet.csv')
+        else:
+            pass
+
+                # Return to Main manu
+        mainManu = input('Retuen to main manu? (Y/n) ==>').lower()
+        if mainManu == 'y':
+            pass
+        else:
+            break
+
+    if Main =='5':
+
+        payment()
+
+        # Return to Main manu
+        mainManu = input('Retuen to main manu? (Y/n) ==>').lower()
+        if mainManu == 'y':
+            pass
+        else:
+            break
